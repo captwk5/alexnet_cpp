@@ -67,9 +67,6 @@ protected:
     void set_weight(double** weight, string weight_path);
 
     void transpose_filter(double** weight, double** transpose_weight, int kernel_size);
-
-    static double get_fc_sum(double** next_layer, double** layer, double** weight, int batch, int next_l, int length, string activ);
-    
 private:
 
 };
