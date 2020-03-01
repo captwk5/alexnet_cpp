@@ -179,22 +179,6 @@ void CNN::backpropagation(double**** gradient, double**** layer, double**** delt
                     }
                 }
 
-                // if(f == 0 && i < 1 && filter_size == 3){
-                //     cout << "[" << gradient[f][i][0][0] << " , " << gradient[f][i][0][1] << " , " << gradient[f][i][0][2] << "]" << endl;
-                //     cout << "[" << gradient[f][i][1][0] << " , " << gradient[f][i][1][1] << " , " << gradient[f][i][1][2] << "]"<< endl;
-                //     cout << "[" << gradient[f][i][2][0] << " , " << gradient[f][i][2][1] << " , " << gradient[f][i][2][2] << "]" << endl;
-                //     cout << endl;
-                // }
-                // if((f == 0) && i < 1 && filter_size == 5){
-                //     cout << "[" << gradient[f][i][0][0] << " , " << gradient[f][i][0][1] << " , " << gradient[f][i][0][2] << " , " << gradient[f][i][0][3] << " , " << gradient[f][i][0][4] << "]" << endl;
-                //     cout << "[" << gradient[f][i][1][0] << " , " << gradient[f][i][1][1] << " , " << gradient[f][i][1][2] << " , " << gradient[f][i][1][3] << " , " << gradient[f][i][1][4] << "]" << endl;
-                //     cout << "[" << gradient[f][i][2][0] << " , " << gradient[f][i][2][1] << " , " << gradient[f][i][2][2] << " , " << gradient[f][i][2][3] << " , " << gradient[f][i][2][4] << "]" << endl;
-                //     cout << "[" << gradient[f][i][3][0] << " , " << gradient[f][i][3][1] << " , " << gradient[f][i][3][2] << " , " << gradient[f][i][3][3] << " , " << gradient[f][i][3][4] << "]" << endl;
-                //     cout << "[" << gradient[f][i][4][0] << " , " << gradient[f][i][4][1] << " , " << gradient[f][i][4][2] << " , " << gradient[f][i][4][3] << " , " << gradient[f][i][4][4] << "]" << endl;
-                //     cout << endl;
-                // }
-
-                // if(f == 0 && i < 1 && filter_size == 11){
                 //     for(int z = 0; z < 11; z++){
                 //         for(int x = 0; x < 11; x++){
                 //             cout << gradient[f][i][z][x] << " ";
