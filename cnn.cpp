@@ -178,6 +178,17 @@ void CNN::backpropagation(double**** gradient, double**** layer, double**** delt
                         }
                     }
                 }
+<<<<<<< HEAD
+=======
+
+                //     for(int z = 0; z < 11; z++){
+                //         for(int x = 0; x < 11; x++){
+                //             cout << gradient[f][i][z][x] << " ";
+                //         }
+                //         cout << endl;
+                //     }
+                // }
+>>>>>>> issue
             }
         }
     }
