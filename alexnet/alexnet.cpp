@@ -85,16 +85,38 @@ void AlexNet::create_network(){
 }
 
 void AlexNet::set_trainig(double learning_rate, string optimizer, string weight_path){
-    LR = learning_rate;    
-    set_weight(first_filter, weight_path + "96-3-11-11.txt");
-    set_weight(second_filter, weight_path + "256-96-5-5.txt");
-    set_weight(third_filter, weight_path + "384-256-3-3.txt");
-    set_weight(fourth_filter, weight_path + "384-384-3-3.txt");
-    set_weight(fifth_filter, weight_path + "256-384-3-3.txt");
+    LR = learning_rate;
 
-    set_weight(first_fc_filter, weight_path + "4096-9216.txt");
-    set_weight(second_fc_filter, weight_path + "4096-4096.txt");
-    set_weight(third_fc_filter, weight_path + "1000-4096.txt");
+    std::thread t0 = std::thread([&]{
+        set_weight(first_filter, weight_path + "96-3-11-11.json");
+        set_weight(second_filter, weight_path + "256-96-5-5.json");
+        set_weight(third_filter, weight_path + "384-256-3-3.json");
+        set_weight(fourth_filter, weight_path + "384-384-3-3.json");
+        set_weight(fifth_filter, weight_path + "256-384-3-3.json");
+    });
+
+    std::thread t1 = std::thread([&]{
+        set_weight(first_fc_filter, weight_path + "4096-9216.json");
+    });
+
+    std::thread t2 = std::thread([&]{
+        set_weight(second_fc_filter, weight_path + "4096-4096.json");
+        set_weight(third_fc_filter, weight_path + "1000-4096.json");
+    });
+
+    t0.join();
+    t1.join();
+    t2.join();
+    
+    #set_weight(first_filter, weight_path + "96-3-11-11.txt");
+    #set_weight(second_filter, weight_path + "256-96-5-5.txt");
+    #set_weight(third_filter, weight_path + "384-256-3-3.txt");
+    #set_weight(fourth_filter, weight_path + "384-384-3-3.txt");
+    #set_weight(fifth_filter, weight_path + "256-384-3-3.txt");
+
+    #set_weight(first_fc_filter, weight_path + "4096-9216.txt");
+    #set_weight(second_fc_filter, weight_path + "4096-4096.txt");
+    #set_weight(third_fc_filter, weight_path + "1000-4096.txt");
 }
 
 void AlexNet::training_epoch(int epoch){

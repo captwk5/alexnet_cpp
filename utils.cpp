@@ -14,6 +14,26 @@ vector<string> CNN::split(string str, char delimiter){
 
 
 void CNN::set_weight(double**** weight, string weight_path){
+    std::ifstream i(weight_path);
+    json j;
+    i >> j;
+
+    uint64_t s = j.size();
+
+    for(int i = 0; i < s; i++){
+        uint64_t s1 = j[i].size();
+        for(int q = 0; q < s1; q++){
+            uint64_t s2 = j[i][q].size();
+            for(int k = 0; k < s2; k++){
+                uint64_t s3 = j[i][q][k].size();
+                for(int l = 0; l < s3; l++){
+                    weight[i][q][k][l] = j[i][q][k][l];
+                }
+            }
+        }
+    }
+
+    /**
     string str_buf_layer;
     fstream fs_layer;
     try{
@@ -35,9 +55,24 @@ void CNN::set_weight(double**** weight, string weight_path){
     }catch(int exception){
 
     }
+    **/
 }
 
 void CNN::set_weight(double** weight, string weight_path){
+    std::ifstream i(weight_path);
+    json j;
+    i >> j;
+
+    uint64_t s = j.size();
+
+    for(int i = 0; i < s; i++){
+        uint64_t s1 = j[i].size();
+        for(int q = 0; q < s1; q++){
+            weight[i][q] = j[i][q];
+        }
+    }
+
+    /**
     string str_buf_layer;
     fstream fs_layer;
     try{
@@ -57,6 +92,7 @@ void CNN::set_weight(double** weight, string weight_path){
     }catch(int exception){
 
     }
+    **/
 }
 
 void CNN::transpose_filter(double** weight, double** transpose_weight, int kernel_size){
