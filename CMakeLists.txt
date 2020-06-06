@@ -1,8 +1,8 @@
 CMAKE_MINIMUM_REQUIRED ( VERSION 3.8.1 )
 
-PROJECT ( FedeNet )
+PROJECT ( AlexNet )
 
-SET ( MODEL "model" )
+SET ( MODEL "alexnet" )
 
 SET ( SRC
         main.cpp

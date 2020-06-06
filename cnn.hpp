@@ -38,17 +38,18 @@ protected:
     vector<InputDataInfo> data_meta_;
 
     static double activation(double input, string activation);
-    void convolution(double**** layer, double**** next_layer, double**** weight, int stride, int input_channel, int output_channel, int filter_size, int size, string activation);
+    void convolution(double**** layer, double**** next_layer, double**** weight, double* bias, int stride, int input_channel, int output_channel, int filter_size, int size, string activation);
     vector<string> max_pooling(double**** layer, double**** pooling_layer, int output_channel, int layer_size, int filter_size, int stride);
     void flatten(double**** layer, double** fc, int layer_size, int channel);
-    void fully_connected(double** layer, double** next_layer, double** weight, int next_length, int length, string activation);
+    void fully_connected(double** layer, double** next_layer, double** weight, double* bias, int next_length, int length, string activation);
 
-    void backpropagation(double**** gradient, double**** layer, double**** delta, int output_channel, int input_channel, int size, int stride, int filter_size);
+    void backpropagation(double**** gradient, double* bias_gradient, double**** layer, double**** delta, int output_channel, int input_channel, int size, int stride, int filter_size);
     void get_local_gradient(double**** local_gradient, double**** weight, double**** previous_local_gradient, double**** previous_layer, int input_channel, int output_channel, int stride, int filter_size, int size);
     void pooling_to_layer(double**** delta_pooling, double**** delta_layer, double**** layer, vector<string> coord_info);
 
     void weight_update(double**** weight, double**** gradient, int output_channel, int input_channel, int filter_size, double lr);
     void weight_update(double** weight, double** gradient, int length, int next_length, double lr);
+    void bias_update(double* bias, double* bias_gradient, int length, double lr);
 
     void local_gradient_zero(double**** local_gradient, int channel_size, int size);
 
@@ -63,10 +64,14 @@ protected:
 
     vector<string> split(string str, char delimiter);
 
-    void set_weight(double**** weight, string weight_path);
-    void set_weight(double** weight, string weight_path);
+    void set_weight(double**** weight, string bin_path);
+    void set_weight(double** weight, string bin_path);
+    void set_weight(double* bias, string bin_path);
 
     void transpose_filter(double** weight, double** transpose_weight, int kernel_size);
+
+    static double get_fc_sum(double** next_layer, double** layer, double** weight, int batch, int next_l, int length, string activ);
+    
 private:
 
 };

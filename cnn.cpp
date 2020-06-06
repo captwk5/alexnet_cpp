@@ -32,15 +32,11 @@ void CNN::set_data(string data_path, int batch_size, bool suffle){
     }
 }
 
-void CNN::convolution(double**** layer, double**** next_layer, double**** weight
-                    , int stride, int input_channel, int output_channel, int filter, int size, string activ){
+void CNN::convolution(double**** layer, double**** next_layer, double**** weight, double* bias
+        , int stride, int input_channel, int output_channel, int filter, int size, string activ){
     for(int batch = 0; batch < batch_size_; batch++){
-        int next_row = 0;
-        int next_col = 0;
-
         int start_idx = int(filter / 2) * -1;
         int end_idx = start_idx * -1;
-
         for(int channel_out = 0; channel_out < output_channel; channel_out++){
             int row_idx = 0;
             int col_idx = 0;
@@ -48,25 +44,23 @@ void CNN::convolution(double**** layer, double**** next_layer, double**** weight
             for(int r = 0; r < size; r = r + stride){
                 for(int c = 0; c < size; c = c + stride){
                     double sum = 0;
-
-                    for(int channel_in = 0; channel_in < input_channel; channel_in++){
-                        for(int fr = start_idx; fr <= end_idx; fr++){
-                            for(int fc = start_idx; fc <= end_idx; fc++){
-                                if((r + fr >= 0 && c + fc >= 0) && (r + fr < size && c + fc < size)){
-                                    sum += (weight[channel_out][channel_in][fr + end_idx][fc + end_idx] * layer[batch][channel_in][r + fr][c + fc]);
+                    for(int channel_in = 0; channel_in < input_channel; channel_in++) {
+                        for (int fr = start_idx; fr <= end_idx; fr++) {
+                            for (int fc = start_idx; fc <= end_idx; fc++) {
+                                if ((r + fr >= 0 && c + fc >= 0) &&
+                                    (r + fr < size && c + fc < size)) {
+                                    sum += (weight[channel_out][channel_in][fr + end_idx][fc + end_idx] *
+                                            layer[batch][channel_in][r + fr][c + fc]);
                                 }
                             }
                         }
                     }
-
+                    sum += bias[channel_out];
                     next_layer[batch][channel_out][row_idx][col_idx] = activation(sum, activ);
                     col_idx++;
                 }
 
                 row_idx++;
-                
-                next_row = row_idx;
-                next_col = col_idx;
                 col_idx = 0;
             }
         }
@@ -143,32 +137,30 @@ double get_fc_sum(double** next_layer, double** layer, double** weight, int batc
     next_layer[batch][next_l] = sum > 0 ? sum : 0.0;
 }
 
-void CNN::fully_connected(double** layer, double** next_layer, double** weight, int next_length, int length, string activ){
+void CNN::fully_connected(double** layer, double** next_layer, double** weight, double* bias, int next_length, int length, string activ){
+
     for(int batch = 0; batch < batch_size_; batch++){
         for(int next_l = 0; next_l < next_length; next_l++){
             double sum = 0;
             for(int l = 0; l < length; l++){
                 sum += layer[batch][l] * weight[next_l][l];
             }
+            sum += bias[next_l];
             next_layer[batch][next_l] = activation(sum, activ);
-            // thread fc_cal(&CNN::get_fc_sum, next_layer, layer, weight, next_l, length, activ);
-            // fc_cal.join();
         }
     }
 }
 
-void CNN::backpropagation(double**** gradient, double**** layer, double**** delta, int output_channel, int input_channel, int size, int stride, int filter_size){
+void CNN::backpropagation(double**** gradient, double* bias_gradient, double**** layer, double**** delta, int output_channel, int input_channel, int size, int stride, int filter_size){
     for(int batch = 0; batch < batch_size_; batch++){
         int start_idx = int(filter_size / 2) * -1;
         int end_idx = start_idx * -1;
 
         for(int f = 0; f < output_channel; f++){ // 256
+            double sum = 0;
             for(int i = 0; i < input_channel; i++){ // 384
-                // for(int r = 0; r < size; r = r + stride){
-                //     for(int c = 0; c < size; c = c + stride){
                 for(int r = 0; r < size; r++){
                     for(int c = 0; c < size; c++){
-                        
                         for(int fr = start_idx; fr <= end_idx; fr++){
                             for(int fc = start_idx; fc <= end_idx; fc++){
                                 if(((r * stride) + fr >= 0 && (c * stride) + fc >= 0) && ((r * stride) + fr < size * stride && (c * stride) + fc < size * stride)){
@@ -176,20 +168,11 @@ void CNN::backpropagation(double**** gradient, double**** layer, double**** delt
                                 }
                             }
                         }
+                        if(i == 0) sum += delta[batch][f][r][c];
                     }
                 }
-<<<<<<< HEAD
-=======
-
-                //     for(int z = 0; z < 11; z++){
-                //         for(int x = 0; x < 11; x++){
-                //             cout << gradient[f][i][z][x] << " ";
-                //         }
-                //         cout << endl;
-                //     }
-                // }
->>>>>>> issue
             }
+            bias_gradient[f] = sum;
         }
     }
 }
@@ -280,6 +263,14 @@ void CNN::weight_update(double** weight, double** gradient, int length, int next
 
             gradient[nl][l] = 0;
         }
+    }
+}
+
+void CNN::bias_update(double *bias, double *bias_gradient, int length, double lr) {
+    for(int l = 0; l < length; l++){
+        bias[l] -= lr * (bias_gradient[l]);
+
+        bias_gradient[l] = 0;
     }
 }
 

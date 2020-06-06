@@ -12,52 +12,185 @@ vector<string> CNN::split(string str, char delimiter){
 	return internal;
 }
 
+void CNN::set_weight(double *bias, string bin_path) {
+    ifstream is(bin_path, ios::binary);
+    is.seekg(0, ios::end);
 
-void CNN::set_weight(double**** weight, string weight_path){
-    string str_buf_layer;
-    fstream fs_layer;
-    try{
-        fs_layer.open(weight_path.c_str(), ios::in);
-        while(!fs_layer.eof()){
-            getline(fs_layer, str_buf_layer, '\n');
-            vector<string> w = split(str_buf_layer, ',');
-            if(w.size() == 2){
-                vector<string> m = split(w[0], '-');
-                int i0 = atoi(m[0].c_str());
-                int i1 = atoi(m[1].c_str());
-                int i2 = atoi(m[2].c_str());
-                int i3 = atoi(m[3].c_str());
-                double value = atof(w[1].c_str());
-                weight[i0][i1][i2][i3] = value;
-            }
-        }
-        fs_layer.close();
-    }catch(int exception){
+    int s = static_cast<int>(is.tellg());
 
+    is.seekg(0, ios::beg);
+
+    char* vc = new char[s];
+    is.read(vc, s);
+
+    int q = 0;
+    for(int b = 0; b < s; b = b + 4){
+        float output;
+
+        *((char*)(&output) + 0) = vc[b];
+        *((char*)(&output) + 1) = vc[b + 1];
+        *((char*)(&output) + 2) = vc[b + 2];
+        *((char*)(&output) + 3) = vc[b + 3];
+
+        bias[q] = output;
+        q++;
     }
+
+    is.close();
+
+    delete[] vc;
 }
 
-void CNN::set_weight(double** weight, string weight_path){
-    string str_buf_layer;
-    fstream fs_layer;
-    try{
-        fs_layer.open(weight_path.c_str(), ios::in);
-        while(!fs_layer.eof()){
-            getline(fs_layer, str_buf_layer, '\n');
-            vector<string> w = split(str_buf_layer, ',');
-            if(w.size() == 2){
-                vector<string> m = split(w[0], '-');
-                int i0 = atoi(m[0].c_str());
-                int i1 = atoi(m[1].c_str());
-                double value = atof(w[1].c_str());
-                weight[i0][i1] = value;
-            }
-        }
-        fs_layer.close();
-    }catch(int exception){
+void CNN::set_weight(double **weight, string bin_path) {
+    vector<string> bin_name = split(bin_path, ',');
+    vector<string> layer_name = split(bin_name[0], '/');
+    vector<string> layers = split(layer_name.back(), '-');
+    int l1 = atoi(layers[0].c_str());
+    int l2 = atoi(layers[1].c_str());
 
+    ifstream is(bin_path, ios::binary);
+    is.seekg(0, ios::end);
+
+    int s = static_cast<int>(is.tellg());
+
+    is.seekg(0, ios::beg);
+
+    char* vc = new char[s];
+    is.read(vc, s);
+
+    int q = 0;
+    int i = 0;
+    for(int b = 0; b < s; b = b + 4){
+        float output;
+
+        *((char*)(&output) + 0) = vc[b];
+        *((char*)(&output) + 1) = vc[b + 1];
+        *((char*)(&output) + 2) = vc[b + 2];
+        *((char*)(&output) + 3) = vc[b + 3];
+
+        weight[i][q] = output;
+        q++;
+        if(q == l2) {
+            i++;
+            q = 0;
+        }
     }
+
+    is.close();
+
+    delete[] vc;
 }
+
+void CNN::set_weight(double ****weight, string bin_path) {
+    vector<string> bin_name = split(bin_path, ',');
+    vector<string> layer_name = split(bin_name[0], '/');
+    vector<string> layers = split(layer_name.back(), '-');
+    int l1 = atoi(layers[0].c_str());
+    int l2 = atoi(layers[1].c_str());
+    int l3 = atoi(layers[2].c_str());
+    int l4 = atoi(layers[3].c_str());
+
+    ifstream is(bin_path, ios::binary);
+    is.seekg(0, ios::end);
+
+    int s = static_cast<int>(is.tellg());
+
+    is.seekg(0, ios::beg);
+
+    char* vc = new char[s];
+    is.read(vc, s);
+
+    int q = 0;
+    int i = 0;
+    int k = 0;
+    int l = 0;
+    for(int b = 0; b < s; b = b + 4){
+        float output;
+
+        *((char*)(&output) + 0) = vc[b];
+        *((char*)(&output) + 1) = vc[b + 1];
+        *((char*)(&output) + 2) = vc[b + 2];
+        *((char*)(&output) + 3) = vc[b + 3];
+
+        weight[i][q][k][l] = output;
+        l++;
+        if(l == l4) {
+            k++;
+            if(k == l3){
+                q++;
+                if(q == l2){
+                    i++;
+                    q = 0;
+                }
+                k = 0;
+            }
+            l = 0;
+        }
+    }
+
+//    for(int i = 0; i < s; i++){
+//        uint64_t s1 = j[i].size();
+//        for(int q = 0; q < s1; q++){
+//            uint64_t s2 = j[i][q].size();
+//            for(int k = 0; k < s2; k++){
+//                uint64_t s3 = j[i][q][k].size();
+//                for(int l = 0; l < s3; l++){
+//                    weight[i][q][k][l] = j[i][q][k][l];
+//                }
+//            }
+//        }
+//    }
+
+    is.close();
+
+    delete[] vc;
+}
+
+// void CNN::set_weight(double**** weight, string weight_path){
+//     string str_buf_layer;
+//     fstream fs_layer;
+//     try{
+//         fs_layer.open(weight_path.c_str(), ios::in);
+//         while(!fs_layer.eof()){
+//             getline(fs_layer, str_buf_layer, '\n');
+//             vector<string> w = split(str_buf_layer, ',');
+//             if(w.size() == 2){
+//                 vector<string> m = split(w[0], '-');
+//                 int i0 = atoi(m[0].c_str());
+//                 int i1 = atoi(m[1].c_str());
+//                 int i2 = atoi(m[2].c_str());
+//                 int i3 = atoi(m[3].c_str());
+//                 double value = atof(w[1].c_str());
+//                 weight[i0][i1][i2][i3] = value;
+//             }
+//         }
+//         fs_layer.close();
+//     }catch(int exception){
+
+//     }
+// }
+
+// void CNN::set_weight(double** weight, string weight_path){
+//     string str_buf_layer;
+//     fstream fs_layer;
+//     try{
+//         fs_layer.open(weight_path.c_str(), ios::in);
+//         while(!fs_layer.eof()){
+//             getline(fs_layer, str_buf_layer, '\n');
+//             vector<string> w = split(str_buf_layer, ',');
+//             if(w.size() == 2){
+//                 vector<string> m = split(w[0], '-');
+//                 int i0 = atoi(m[0].c_str());
+//                 int i1 = atoi(m[1].c_str());
+//                 double value = atof(w[1].c_str());
+//                 weight[i0][i1] = value;
+//             }
+//         }
+//         fs_layer.close();
+//     }catch(int exception){
+
+//     }
+// }
 
 void CNN::transpose_filter(double** weight, double** transpose_weight, int kernel_size){
     int kernel_size_idx = kernel_size - 1;
@@ -154,6 +287,9 @@ void CNN::layer_memory_release(double*** layer, int batch_size, int length){
 void CNN::layer_memory_assign(double** layer, int batch_size, int length){
     for(int batch = 0; batch < batch_size; batch++){
         *(layer + batch) = new double[length];
+        for(int i = 0; i < length; i++){
+            layer[batch][i] = 0;
+        }
     }
 }
 
