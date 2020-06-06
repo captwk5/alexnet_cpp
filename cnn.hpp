@@ -19,6 +19,8 @@
 
 #include "opencv2/opencv.hpp"
 
+#include "json.hpp"
+
 using namespace std;
 using namespace cv;
 
